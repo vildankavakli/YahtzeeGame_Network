@@ -4,18 +4,40 @@
  */
 package Client;
 
+import Server.ScoreCalculator;
+import java.awt.Image;
+import java.awt.event.MouseAdapter;
+import java.lang.reflect.Array;
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
+import javax.swing.JToggleButton;
+
 /**
  *
  * @author user
  */
 public class GameGUI extends javax.swing.JFrame {
 
+    int selectedRow;
+    int selectedColumn;
+    int category;
+    int score;
+
+    private Server.Dice[] dices = new Server.Dice[5];
+
     /**
      * Creates new form GameGUI
      */
     public GameGUI() {
         initComponents();
+        updateLabel(1, dice1);
+        updateLabel(2, dice2);
+        updateLabel(3, dice3);
+        updateLabel(4, dice4);
+        updateLabel(5, dice5);
+
     }
+    //private DefaultTableModel tableModel;
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -26,21 +48,380 @@ public class GameGUI extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        menuBar1 = new java.awt.MenuBar();
+        menu1 = new java.awt.Menu();
+        menu2 = new java.awt.Menu();
+        jPanel1 = new javax.swing.JPanel();
+        jLabel1 = new javax.swing.JLabel();
+        zarButonu = new javax.swing.JButton();
+        gonderButonu = new javax.swing.JButton();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        skorTablosu1 = new javax.swing.JTable();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        kategoriTablosu = new javax.swing.JTable();
+        dice1 = new javax.swing.JLabel();
+        dice2 = new javax.swing.JLabel();
+        dice3 = new javax.swing.JLabel();
+        dice4 = new javax.swing.JLabel();
+        dice5 = new javax.swing.JLabel();
+        d1 = new javax.swing.JToggleButton();
+        d2 = new javax.swing.JToggleButton();
+        d3 = new javax.swing.JToggleButton();
+        d4 = new javax.swing.JToggleButton();
+        d5 = new javax.swing.JToggleButton();
+
+        menu1.setLabel("File");
+        menuBar1.add(menu1);
+
+        menu2.setLabel("Edit");
+        menuBar1.add(menu2);
+
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+
+        jLabel1.setFont(new java.awt.Font("Times New Roman", 1, 24)); // NOI18N
+        jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel1.setText("YAHTZEE OYUNU");
+        jLabel1.setBorder(new javax.swing.border.MatteBorder(null));
+
+        zarButonu.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
+        zarButonu.setText("ZAR AT");
+        zarButonu.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                zarButonuActionPerformed(evt);
+            }
+        });
+
+        gonderButonu.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
+        gonderButonu.setText("GÖNDER");
+        gonderButonu.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                gonderButonuActionPerformed(evt);
+            }
+        });
+
+        skorTablosu1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        skorTablosu1.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null}
+            },
+            new String [] {
+                "Birinci Oyuncu", "İkinci Oyuncu"
+            }
+        ));
+        skorTablosu1.setColumnSelectionAllowed(true);
+        skorTablosu1.setSelectionForeground(new java.awt.Color(0, 0, 0));
+        skorTablosu1.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        skorTablosu1.setShowGrid(true);
+        skorTablosu1.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                skorTablosu1MouseClicked(evt);
+            }
+        });
+        jScrollPane1.setViewportView(skorTablosu1);
+        skorTablosu1.getColumnModel().getSelectionModel().setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+
+        kategoriTablosu.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {"Oyuncu Adı"},
+                {"Birler"},
+                {"İkiler"},
+                {"Üçler"},
+                {"Dörtler"},
+                {"Beşler"},
+                {"Altılar"},
+                {"3 of Kind"},
+                {"4 of Kind"},
+                {"Küçük Seri"},
+                {"Büyük Seri"},
+                {"Full House"},
+                {"Şans(5 zar toplamı)"},
+                {"Yahtzee"},
+                {"TOPLAM SKOR"},
+                {null}
+            },
+            new String [] {
+                "Kategoriler"
+            }
+        ));
+        kategoriTablosu.setToolTipText("");
+        kategoriTablosu.setShowGrid(true);
+        jScrollPane2.setViewportView(kategoriTablosu);
+
+        dice1.setBackground(new java.awt.Color(102, 102, 0));
+        dice1.setForeground(new java.awt.Color(255, 255, 255));
+        dice1.setText("jLabel2");
+        dice1.setOpaque(true);
+
+        dice2.setText("jLabel3");
+
+        dice3.setText("jLabel4");
+
+        dice4.setText("jLabel5");
+
+        dice5.setText("jLabel6");
+
+        d1.setText("...");
+        d1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                d1ActionPerformed(evt);
+            }
+        });
+
+        d2.setText("...");
+        d2.setToolTipText("...");
+        d2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                d2ActionPerformed(evt);
+            }
+        });
+
+        d3.setText("...");
+        d3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                d3ActionPerformed(evt);
+            }
+        });
+
+        d4.setText("...");
+        d4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                d4ActionPerformed(evt);
+            }
+        });
+
+        d5.setText("...");
+        d5.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                d5ActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(314, 314, 314)
+                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 241, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(46, 46, 46)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
+                                .addComponent(dice1, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addGroup(jPanel1Layout.createSequentialGroup()
+                                        .addGap(18, 18, 18)
+                                        .addComponent(dice2, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(18, 18, 18)
+                                        .addComponent(dice3, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addComponent(dice5, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(32, 32, 32))))
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addComponent(zarButonu, javax.swing.GroupLayout.PREFERRED_SIZE, 104, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(dice4, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(gonderButonu))))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(60, 60, 60)
+                        .addComponent(d1, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(46, 46, 46)
+                        .addComponent(d2, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(44, 44, 44)
+                        .addComponent(d3, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 158, Short.MAX_VALUE)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 192, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 182, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(51, 51, 51))
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(94, 94, 94)
+                .addComponent(d4, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(66, 66, 66)
+                .addComponent(d5, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(34, 34, 34)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(jPanel1Layout.createSequentialGroup()
+                                        .addGap(236, 236, 236)
+                                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addComponent(d1)
+                                            .addComponent(d2)
+                                            .addComponent(d3))
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                            .addComponent(dice4, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addComponent(dice5, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                    .addGroup(jPanel1Layout.createSequentialGroup()
+                                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 331, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(0, 0, Short.MAX_VALUE)))
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(d4)
+                                    .addComponent(d5))
+                                .addGap(9, 9, 9))
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 331, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 53, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(129, 129, 129)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(dice2, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(dice3, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(dice1, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(199, 199, 199)))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(gonderButonu)
+                    .addComponent(zarButonu))
+                .addGap(81, 81, 81))
+        );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 118, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    protected void updateLabel(int value, javax.swing.JLabel label) {
+        ImageIcon icon = new ImageIcon("C:\\Users\\user\\OneDrive\\Belgeler\\NetBeansProjects\\NetworkProject\\src\\main\\java\\Zarlar\\dice" + value + ".jpg");
+        Image fotograf = icon.getImage();
+        Image newimg = fotograf.getScaledInstance(70, 70, java.awt.Image.SCALE_SMOOTH);
+        icon = new ImageIcon(newimg);
+        label.setIcon(icon);
+        label.setText(null);
+    }
+
+    public static enum Scores {
+        ONES, TWOS, THREES, FOURS, FIVES, SIXES, THREEKIND, FOURKIND, FULLHOUSE, SMALLSTR, LARGESTR, CHANCE, YAHTZEE
+    }
+
+    private void zarButonuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_zarButonuActionPerformed
+
+        JToggleButton[] toggleButtons = {d1, d2, d3, d4, d5};
+        JLabel[] diceLabels = {dice1, dice2, dice3, dice4, dice5};
+
+        if (dices[0] == null) {
+            for (int i = 0; i < 5; i++) {
+                dices[i] = new Server.Dice(); // Dice sınıfın static değilse
+            }
+        }
+
+        for (int i = 0; i < 5; i++) {
+            if (!toggleButtons[i].isSelected()) {
+                dices[i].roll();
+                updateLabel(dices[i].getValue(), diceLabels[i]);
+            }
+        }
+
+
+    }//GEN-LAST:event_zarButonuActionPerformed
+
+    public void addPlayerToTable(String oyuncuAdi, int column) {
+        System.out.println(oyuncuAdi);
+        skorTablosu1.setValueAt(oyuncuAdi, 0, column);
+    }
+
+
+    private void skorTablosu1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_skorTablosu1MouseClicked
+        int[] diceValues = new int[5];
+        for (int i = 0; i < 5; i++) {
+            diceValues[i] = dices[i].getValue();
+
+        }
+        selectedRow = skorTablosu1.rowAtPoint(evt.getPoint());
+        selectedColumn = skorTablosu1.columnAtPoint(evt.getPoint());
+
+        if (selectedRow != -1 && selectedColumn != -1) {
+            String category = kategoriTablosu.getValueAt(selectedRow, 0).toString().toLowerCase();
+            score = ScoreCalculator.calculate(category, diceValues);
+            System.out.println(score);
+
+        }
+
+
+    }//GEN-LAST:event_skorTablosu1MouseClicked
+
+    private void gonderButonuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_gonderButonuActionPerformed
+        skorTablosu1.setValueAt(score, selectedRow, selectedColumn); //2 yerine SCORE toplamı
+
+    }//GEN-LAST:event_gonderButonuActionPerformed
+
+    private void d1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_d1ActionPerformed
+        if (d1.isSelected()) {
+            dice1.setEnabled(false);
+        } else {
+            dice1.setEnabled(true);
+        }
+    }//GEN-LAST:event_d1ActionPerformed
+
+    private void d2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_d2ActionPerformed
+        if (d2.isSelected()) {
+            dice2.setEnabled(false);
+        } else {
+            dice2.setEnabled(true);
+        }
+    }//GEN-LAST:event_d2ActionPerformed
+
+    private void d3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_d3ActionPerformed
+        if (d3.isSelected()) {
+            dice3.setEnabled(false);
+        } else {
+            dice3.setEnabled(true);
+        }
+    }//GEN-LAST:event_d3ActionPerformed
+
+    private void d4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_d4ActionPerformed
+        if (d4.isSelected()) {
+            dice4.setEnabled(false);
+        } else {
+            dice4.setEnabled(true);
+        }
+    }//GEN-LAST:event_d4ActionPerformed
+
+    private void d5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_d5ActionPerformed
+        if (d5.isSelected()) {
+            dice5.setEnabled(false);
+        } else {
+            dice5.setEnabled(true);
+        }
+    }//GEN-LAST:event_d5ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -68,6 +449,21 @@ public class GameGUI extends javax.swing.JFrame {
             java.util.logging.Logger.getLogger(GameGUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
@@ -78,5 +474,26 @@ public class GameGUI extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JToggleButton d1;
+    private javax.swing.JToggleButton d2;
+    private javax.swing.JToggleButton d3;
+    private javax.swing.JToggleButton d4;
+    private javax.swing.JToggleButton d5;
+    private javax.swing.JLabel dice1;
+    private javax.swing.JLabel dice2;
+    private javax.swing.JLabel dice3;
+    private javax.swing.JLabel dice4;
+    private javax.swing.JLabel dice5;
+    private javax.swing.JButton gonderButonu;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JTable kategoriTablosu;
+    private java.awt.Menu menu1;
+    private java.awt.Menu menu2;
+    private java.awt.MenuBar menuBar1;
+    private javax.swing.JTable skorTablosu1;
+    private javax.swing.JButton zarButonu;
     // End of variables declaration//GEN-END:variables
 }
