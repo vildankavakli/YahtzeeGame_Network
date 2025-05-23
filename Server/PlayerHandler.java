@@ -1,4 +1,3 @@
-// PlayerHandler.java
 package Server;
 
 import java.io.*;

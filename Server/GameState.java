@@ -1,4 +1,3 @@
-// GameState.java
 package Server;
 
 import java.util.*;
