@@ -1,23 +1,19 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package Server;
 
-/**
- *
- * @author user
- */
 public class Dice {
 
-    private int value;
+    private int value; // Zarın mevcut değerini tutar (1-6 arası)
 
     public Dice() {
-        roll();
+        roll(); // Zar nesnesi oluşturulduğunda ilk zar atışını yap
+    }
+
+    public void setValue(int value) {
+        this.value = value;
     }
 
     public void roll() {
-        this.value = (int) (Math.random() * 6) + 1;
+        this.value = (int) (Math.random() * 6) + 1; // Zarı rastgele atar ve 1 ile 6 arasında yeni bir değer belirler.
     }
 
     public int getValue() {
