@@ -38,33 +38,51 @@ public class GameGUI extends javax.swing.JFrame {
     /**
      * Creates new form GameGUI
      */
+    /**
+     * GameGUI sınıfının yapıcı metodudur. GUI bileşenlerini başlatır, başlangıç
+     * durumu ayarlarını yapar ve sunucu bağlantısını kurar.
+     */
     public GameGUI() {
-        initComponents();
+        initComponents(); // NetBeans GUI Builder tarafından otomatik oluşturulan bileşenleri başlatır.
 
+        // Oyun başlangıcında zar atma ve skor gönderme butonlarını devre dışı bırak.
+        // Bu butonlar, oyuncunun sırası geldiğinde 'updateTurn' metodu tarafından etkinleştirilecektir.
         rollButton.setEnabled(false);
         sendButton.setEnabled(false);
 
+        // Zar görsellerini başlangıç değerleriyle günceller.
+        // Bu, oyunun başında GUI'de görünen zarların varsayılan görsellerini ayarlar.
         updateLabel(1, dice1);
         updateLabel(2, dice2);
         updateLabel(3, dice3);
         updateLabel(4, dice4);
         updateLabel(5, dice5);
 
+        // Skor tablosunun modelini alır. Bu model, tabloya veri eklemek ve güncellemek için kullanılır.
         scoreTableModel = (DefaultTableModel) scoreTable1.getModel();
 
         try {
-            connection = new ClientConnection("ec2-16-171-175-101.eu-north-1.compute.amazonaws.com", 12345, this); // Veya IP adresi: "13.61.33.151"
+            // Sunucuya bağlanmak için ClientConnection nesnesini oluşturur.
+            // "ec2-16-171-175-101.eu-north-1.compute.amazonaws.com" sunucunun IP adresi veya hostname'idir. (AWS'dan alınmıştır. )
+            // 12345 ise sunucunun dinlediği port numarasıdır. 'this' parametresi, GameGUI'nin bir dinleyici olarak
+            // sunucudan gelen mesajları işleyebilmesi için ClientConnection'a referansını verir.
+            connection = new ClientConnection("ec2-16-171-175-101.eu-north-1.compute.amazonaws.com", 12345, this);
         } catch (Exception e) {
+            // Sunucuya bağlanılamazsa hata mesajı gösterir ve uygulamadan çıkar.
             JOptionPane.showMessageDialog(this, "Sunucuya bağlanılamadı!", "Hata", JOptionPane.ERROR_MESSAGE);
-            System.exit(1);
+            System.exit(1); // Uygulamayı kapatır.
         }
+
+        // Pencere kapatma olayını dinlemek için bir WindowListener ekler.
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
+                // Pencere kapatıldığında sunucuya "QUIT" mesajı gönderir.
+                // Bu, sunucunun bağlantıyı düzgün bir şekilde kapatmasını sağlar.
                 if (connection != null) {
-                    connection.sendMessage("QUIT"); // Sunucuya çıkış mesajı gönder
+                    connection.sendMessage("QUIT");
                 }
-                System.exit(0);
+                System.exit(0); // Uygulamayı güvenli bir şekilde kapatır.
             }
         });
     }
@@ -359,105 +377,152 @@ public class GameGUI extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+       /**
+     * Bu istemcinin oyuncu indeksini ayarlar.
+     *
+     * @param index Bu istemcinin temsil ettiği oyuncunun sunucudan aldığı
+     * indeks.
+     */
     public void setMyPlayerIndex(int index) {
         myPlayerIndex = index;
         System.out.println("Bu istemcinin oyuncu indeksi: " + myPlayerIndex);
     }
 
+    /**
+     * İstemci-sunucu bağlantısını sağlayan ClientConnection nesnesini ayarlar.
+     *
+     * @param connection Sunucu ile iletişim kurmak için kullanılacak
+     * ClientConnection nesnesi.
+     */
     public void setConnection(ClientConnection connection) {
         this.connection = connection;
     }
 
+    /**
+     * Bu istemcinin oyuncu indeksini döndürür.
+     *
+     * @return Bu istemcinin oyuncu indeksi.
+     */
     public int getMyPlayerIndex() {
         return myPlayerIndex;
     }
 
+    /**
+     * Belirli bir zar değerine karşılık gelen görseli bir JLabel üzerine yükler
+     * ve gösterir. Görselin boyutu ayarlanır ve JLabel'ın metni temizlenir.
+     *
+     * @param value Görüntülenecek zar değeri (1-6 arası).
+     * @param label Zar görselinin yükleneceği JLabel.
+     */
     protected void updateLabel(int value, javax.swing.JLabel label) {
         ImageIcon icon = new ImageIcon("C:\\Users\\user\\OneDrive\\Belgeler\\NetBeansProjects\\NetworkProject\\src\\main\\java\\Zarlar\\dice" + value + ".jpg");
         Image fotograf = icon.getImage();
         Image newimg = fotograf.getScaledInstance(40, 40, java.awt.Image.SCALE_SMOOTH);
         icon = new ImageIcon(newimg);
         label.setIcon(icon);
-        label.setText(null);
+        label.setText(null); // JLabel'ın metnini temizle, sadece görsel görünsün.
     }
 
+    /**
+     * Zar görsellerini ve ilgili Dice nesnelerinin değerlerini günceller. Yeni
+     * atılan zar değerlerini GUI'ye yansıtır.
+     *
+     * @param values Güncellenecek 5 zarın değerlerini içeren dizi.
+     */
     public void updateDice(int[] values) {
+        // Zar görsellerini içeren JLabel dizisi.
         JLabel[] diceLabels = {dice1, dice2, dice3, dice4, dice5};
         for (int i = 0; i < 5; i++) {
+            // Eğer ilgili Dice nesnesi henüz oluşturulmadıysa oluştur.
             if (dices[i] == null) {
                 dices[i] = new Server.Dice();
             }
-            dices[i].setValue(values[i]);
-            updateLabel(values[i], diceLabels[i]);
-            diceLabels[i].setEnabled(true);
+            dices[i].setValue(values[i]); // Dice nesnesinin değerini güncelle.
+            updateLabel(values[i], diceLabels[i]); // JLabel'ın görselini güncelle.
+            diceLabels[i].setEnabled(true); // Zar görsellerini etkileşimli hale getir.
         }
     }
 
+    /**
+     * Oyun sırası değiştiğinde GUI'yi günceller. Zar atma sayacını sıfırlar,
+     * butonların etkinliğini ayarlar ve oyuncuya sıra bilgisini gösterir.
+     *
+     * @param index Sırası gelen oyuncunun indeksi.
+     */
     public void updateTurn(int index) {
-        currentTurnIndex = index;
-        rollCount = 0;
-        boolean myTurn = (index == myPlayerIndex);
+        currentTurnIndex = index; // Mevcut sıra indeksini güncelle.
+        rollCount = 0; // Zar atma sayacını sıfırla.
+        boolean myTurn = (index == myPlayerIndex); // Sıranın bu istemcide olup olmadığını kontrol et.
 
-        rollButton.setEnabled(myTurn); // sadece kendi sırasıysa zar atabilir
-        sendButton.setEnabled(myTurn); // sadece kendi sırasıysa skor gönderebilir
+        rollButton.setEnabled(myTurn); // Sadece kendi sırasıysa zar atma butonunu etkinleştir.
+        sendButton.setEnabled(myTurn); // Sadece kendi sırasıysa skor gönderme butonunu etkinleştir.
 
-        JToggleButton[] toggleButtons = {d1, d2, d3, d4, d5};
-        JLabel[] diceLabels = {dice1, dice2, dice3, dice4, dice5};
+        JToggleButton[] toggleButtons = {d1, d2, d3, d4, d5}; // Zar tutma butonları.
+        JLabel[] diceLabels = {dice1, dice2, dice3, dice4, dice5}; // Zar görselleri.
 
         for (int i = 0; i < 5; i++) {
-            toggleButtons[i].setSelected(false);
-            diceLabels[i].setEnabled(true);
+            toggleButtons[i].setSelected(false); // Tüm zar tutma butonlarının seçimini kaldır.
+            diceLabels[i].setEnabled(true); // Tüm zar görsellerini etkinleştir.
         }
 
+        // Oyuncuya sıra bilgisi veren bir mesaj kutusu göster.
         if (myTurn) {
             JOptionPane.showMessageDialog(this, "Sıra Sizde! Zar atmak için 'ZAR AT' butonuna basın.");
         } else {
-            // Oyuncu indeksleri 0'dan başladığı için 1 ekleyerek gösteriyoruz
+            // Oyuncu indeksleri 0'dan başladığı için ekrana 1 ekleyerek gösteriyoruz.
             JOptionPane.showMessageDialog(this, "Sıradaki oyuncu: Oyuncu " + (currentTurnIndex + 1) + ". Lütfen bekleyin.");
         }
-        // Seçili skor hücresini de sıfırlayabiliriz
+        // Seçili skor hücresini sıfırla.
         selectedRow = -1;
         selectedColumn = -1;
     }
 
+    /**
+     * Oyun sonu özetini oluşturmak için StringBuilder'ı başlatır. Bu metod,
+     * yeni bir oyun sonu özeti toplanmaya başlandığında çağrılmalıdır.
+     */
     public void showGameOverSummary() {
-        gameOverSummary = new StringBuilder("Oyun Sonu Sonuçları:\n"); // Özetin başlangıcını ayarla
-        // Tüm eski mesajları temizle veya yeni bir pencere aç
-        // Şu anki JOptionPane'ı göstermeden önce hazır olmasını bekleyeceğiz.
+        gameOverSummary = new StringBuilder("Oyun Sonu Sonuçları:\n"); // Özetin başlangıç metnini ayarla.
+        // Bu metod çağrıldığında, eski mesajlar temizlenir veya yeni bir özet penceresi için hazırlanılır.
     }
 
-    // GUI'yi yeni bir oyun için sıfırlayan metot
+    /**
+     * GUI'yi yeni bir oyun için sıfırlar. Zar görsellerini, butonları ve skor
+     * tablosunu başlangıç durumuna getirir.
+     */
     public void resetGUIForNewGameRequest() {
+        // GUI güncellemelerini Swing'in olay gönderim iş parçacığında güvenli bir şekilde çalıştır.
         SwingUtilities.invokeLater(() -> {
-            // Zar görsellerini varsayılan hale getir
+            // Zar görsellerini varsayılan hale getir (örneğin 1'den 5'e kadar zarlar).
             updateLabel(1, dice1);
             updateLabel(2, dice2);
             updateLabel(3, dice3);
             updateLabel(4, dice4);
             updateLabel(5, dice5);
 
-            // Zar tutma butonlarını serbest bırak
+            // Tüm zar tutma butonlarının seçimini kaldır.
             d1.setSelected(false);
             d2.setSelected(false);
             d3.setSelected(false);
             d4.setSelected(false);
             d5.setSelected(false);
 
-            // Zar atma sayacını sıfırla
-            rollCount = 0;
+            rollCount = 0; // Zar atma sayacını sıfırla.
 
-            // Butonları devre dışı bırak (oyun başlayana kadar)
+            // Zar atma ve skor gönderme butonlarını devre dışı bırak (oyun başlayana kadar).
             rollButton.setEnabled(false);
             sendButton.setEnabled(false);
 
+            // Skor tablosunu temizle.
             int rowCount = scoreTableModel.getRowCount();
             int columnCount = scoreTableModel.getColumnCount();
 
-            // Her satır ve her sütunu dolaş
-            // İlk sütunu (kategori isimleri) atlamak için column = 1'den başla
+            // Skor tablosundaki her hücreyi dolaş ve içeriğini boşalt.
+            // İlk sütun (kategori isimleri) zaten boşaltılmamalıdır, bu kodda col = 0 da boşaltılmaktadır.
+            // Eğer kategori isimleri ilk sütundaysa, döngü `col = 1`'den başlatılmalıdır.
             for (int row = 0; row < rowCount; row++) {
-                for (int col = 0; col < columnCount; col++) {
-                    scoreTableModel.setValueAt("", row, col); // Hücre değerini boş string yap
+                for (int col = 0; col < columnCount; col++) { // col = 1'den başlatılabilir.
+                    scoreTableModel.setValueAt("", row, col); // Hücre değerini boş string yap.
                 }
             }
 
@@ -465,227 +530,284 @@ public class GameGUI extends javax.swing.JFrame {
         });
     }
 
-    // Oyun sonu mesajlarını (her oyuncunun skoru, kazanan) toplamak için
+    /**
+     * Oyun sonu mesajlarını (oyuncuların skorları, kazanan bilgisi) toplar ve
+     * gösterir. Eğer bir kazanan veya beraberlik mesajı gelirse, oyun sonu
+     * özetini gösterir ve oyuncuya tekrar oynamak isteyip istemediğini sorar.
+     *
+     * @param message Eklenecek oyun sonu mesajı.
+     */
     public void addGameOverMessage(String message) {
         if (gameOverSummary != null) {
-            gameOverSummary.append(message).append("\n");
-            // Eğer "Kazanan" veya "Oyun berabere" mesajı geldiyse, özeti göster ve tekrar oyna sorusunu sor
+            gameOverSummary.append(message).append("\n"); // Mesajı özete ekle.
+            // Eğer gelen mesaj bir "Kazanan" veya "Oyun berabere" mesajı ise, oyunu bitir ve seçenekleri sun.
             if (message.startsWith("Kazanan:") || message.startsWith("Oyun berabere bitti!")) {
                 SwingUtilities.invokeLater(() -> {
-                    // Oyun bitti mesajını göster
+                    // Oyun bitti mesajını içeren bir JOptionPane göster.
                     JOptionPane.showMessageDialog(this, gameOverSummary.toString(), "Oyun Bitti!", JOptionPane.INFORMATION_MESSAGE);
 
-                    // Kontrolleri devre dışı bırak
-                    disableGameControls();
+                    disableGameControls(); // Oyun kontrollerini devre dışı bırak.
 
-                    // Tekrar oynamak isteyip istemediğini sor
+                    // Oyuncuya tekrar oynamak isteyip istemediğini sor.
                     int response = JOptionPane.showConfirmDialog(this,
                             "Tekrar oynamak ister misiniz?", "Yeni Oyun",
                             JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 
                     if (response == JOptionPane.YES_OPTION) {
-                        // Evet ise sunucuya RESTART mesajı gönder
+                        // Eğer oyuncu 'Evet' derse, sunucuya "RESTART" mesajı gönder.
                         if (connection != null) {
                             connection.sendMessage("RESTART");
-                            resetGUIForNewGameRequest();//?
+                            resetGUIForNewGameRequest(); // GUI'yi yeni oyun için sıfırla.
                         }
-
                     } else {
-                        // Hayır ise sunucuya QUIT mesajı gönder ve uygulamayı kapat
+                        // Eğer oyuncu 'Hayır' derse, sunucuya "QUIT" mesajı gönder ve uygulamayı kapat.
                         if (connection != null) {
                             connection.sendMessage("QUIT");
                         }
-                        // Uygulamayı tamamen kapat
-                        System.exit(0);
+                        System.exit(0); // Uygulamayı tamamen kapat.
                     }
                 });
             }
         }
     }
 
-    // Oyun kontrollerini devre dışı bırakacak (örneğin butonları gri yapacak) metot
+    /**
+     * Oyun kontrollerini (butonlar, zar tutma düğmeleri, skor tablosu) devre
+     * dışı bırakır. Genellikle oyun bittiğinde veya sıra başka bir oyuncudayken
+     * çağrılır.
+     */
     private void disableGameControls() {
-        rollButton.setEnabled(false);
-        sendButton.setEnabled(false);
-        // Tüm zar toggle butonlarını da devre dışı bırak
-        JToggleButton[] toggleButtons = {d1, d2, d3, d4, d5};
-        for (JToggleButton tb : toggleButtons) {
-            tb.setEnabled(false);
-        }
-        // Kategori tablosunu da etkisiz hale getirebilirsiniz
-        categoryTable.setEnabled(false);
+        rollButton.setEnabled(false); // Zar atma butonunu devre dışı bırak.
+        sendButton.setEnabled(false); // Skor gönderme butonunu devre dışı bırak.
 
+        JToggleButton[] toggleButtons = {d1, d2, d3, d4, d5}; // Zar tutma butonları.
+        for (JToggleButton tb : toggleButtons) {
+            tb.setEnabled(false); // Tüm zar tutma butonlarını devre dışı bırak.
+        }
+        categoryTable.setEnabled(false); // Kategori tablosunu devre dışı bırak.
     }
 
+    /**
+     * "ZAR AT" butonuna tıklandığında tetiklenen olay. Oyuncunun sırası
+     * değilse, 3 kezden fazla zar atmışsa veya tutulan zarlar yoksa ilgili
+     * uyarıları gösterir. Ardından tutulan zarların indekslerini sunucuya
+     * göndererek zar atma isteği yapar.
+     *
+     * @param evt Olay bilgisi.
+     */
     private void rollButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rollButtonActionPerformed
 
         if (currentTurnIndex != myPlayerIndex) {
-            JOptionPane.showMessageDialog(this, "Sıra sizde değil!");
+            JOptionPane.showMessageDialog(this, "Sıra sizde değil!"); // Sıra kendisinde değilse uyarı ver.
             return;
         }
 
         if (rollCount >= 3) {
-            JOptionPane.showMessageDialog(this, "3 kez zar attınız. Artık puanınızı seçin");
-            rollButton.setEnabled(false);
+            JOptionPane.showMessageDialog(this, "3 kez zar attınız. Artık puanınızı seçin"); // 3 atış hakkı dolduysa uyarı ver.
+            rollButton.setEnabled(false); // Zar atma butonunu devre dışı bırak.
             return;
         }
-        JToggleButton[] toggleButtons = {d1, d2, d3, d4, d5};
-        StringBuilder heldIndices = new StringBuilder();
+        JToggleButton[] toggleButtons = {d1, d2, d3, d4, d5}; // Zar tutma butonları.
+        StringBuilder heldIndices = new StringBuilder(); // Tutulan zar indekslerini toplamak için.
 
-        // Hangi zarların tutulduğunu belirle ve sunucuya göndermek için string oluştur
+        // Hangi zarların tutulduğunu belirle ve sunucuya göndermek için virgülle ayrılmış bir string oluştur.
         for (int i = 0; i < 5; i++) {
             if (toggleButtons[i].isSelected()) {
-                // Tutulan zarların indekslerini kaydet (0-4 arası)
                 if (heldIndices.length() > 0) {
                     heldIndices.append(",");
                 }
-                heldIndices.append(i);
+                heldIndices.append(i); // Tutulan zarın indeksini ekle.
             }
         }
 
+        // Sunucuya "ROLL" komutu ile tutulan zar indekslerini gönder.
+        // Eğer hiçbir zar tutulmadıysa sadece "ROLL" gönderilir.
         connection.sendMessage("ROLL" + (heldIndices.length() > 0 ? ":" + heldIndices.toString() : ""));
 
-        rollCount++;
+        rollCount++; // Zar atma sayacını artır.
 
         if (rollCount >= 3) {
-            rollButton.setEnabled(false);
+            rollButton.setEnabled(false); // 3 atış yapıldıysa zar atma butonunu devre dışı bırak.
         }
-
     }//GEN-LAST:event_rollButtonActionPerformed
-
-    // Sınıf seviyesinde bir değişken ile kaçıncı oyuncuyu ekleyeceğimizi takip etmek faydalı olabilir.
-// Örneğin: private int nextPlayerColumn = 0; // Eğer oyuncu adları sütunlarda ise
-    
-
+    /**
+     * Skor tablosundaki bir hücreye tıklandığında tetiklenen olay. Oyuncunun
+     * sırası değilse veya başka bir oyuncunun sütununa tıklanmışsa uyarı verir.
+     * Seçilen hücrenin daha önce kullanılıp kullanılmadığını kontrol eder ve
+     * uygunsa seçimi kaydeder.
+     *
+     * @param evt Olay bilgisi.
+     */
     private void scoreTable1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_scoreTable1MouseClicked
         if (currentTurnIndex != myPlayerIndex) {
             JOptionPane.showMessageDialog(this, "Sıra sizde değil. Skor seçimi yapamazsınız.");
-            selectedRow = -1; // Seçimi sıfırla
+            selectedRow = -1; // Seçimi sıfırla.
             selectedColumn = -1;
             return;
         }
 
-        int row = scoreTable1.rowAtPoint(evt.getPoint());
-        int col = scoreTable1.columnAtPoint(evt.getPoint());
+        int row = scoreTable1.rowAtPoint(evt.getPoint()); // Tıklanan satırın indeksini al.
+        int col = scoreTable1.columnAtPoint(evt.getPoint()); // Tıklanan sütunun indeksini al.
 
+        // Eğer tıklanan satır geçerli bir kategori satırıysa (genellikle 0. satır başlık olduğundan > 0)
+        // ve sütun geçerli bir sütunsa devam et.
         if (row > 0 && col >= 0 && col < scoreTableModel.getColumnCount()) {
+            // Sadece kendi skor sütununa skor girebilir.
             if (col == myPlayerIndex) {
                 Object cellValue = scoreTableModel.getValueAt(row, col);
+                // Eğer hücre boşsa, boş stringse veya "0" ise (yani henüz skor girilmemişse)
                 if (cellValue == null || cellValue.toString().trim().isEmpty() || cellValue.toString().equals("0")) {
-                    selectedRow = row;
+                    selectedRow = row; // Seçilen satır ve sütunu kaydet.
                     selectedColumn = col;
-                    
+
+                    // Bu kısım, hücreye tıklanır tıklanmaz skoru hesaplama girişimidir.
+                    // Genellikle skor hesaplaması "SKOR GÖNDER" butonuna basıldığında yapılır.
+                    // Bu blokta doğrudan bir işlem yapmayabiliriz, sadece seçimi kaydetmeliyiz.
                     if (dices[0] != null) {
                         int[] diceValues = new int[5];
                         for (int i = 0; i < 5; i++) {
                             diceValues[i] = dices[i].getValue();
                         }
                         String category = categoryTable.getValueAt(selectedRow, 0).toString().toLowerCase();
-                        
-                        
+                        // Burada skoru hesaplamak yerine sadece seçimi onaylayabiliriz.
+                        // Skor hesaplama ve gönderme işlemi sendButtonActionPerformed'da yapılır.
                     }
                 } else {
                     JOptionPane.showMessageDialog(this, "Bu kategori zaten kullanıldı. Lütfen başka bir kategori seçin.");
-                    selectedRow = -1; // Seçimi sıfırla
+                    selectedRow = -1; // Seçimi sıfırla.
                     selectedColumn = -1;
                 }
             } else {
                 JOptionPane.showMessageDialog(this, "Sadece kendi sütununuza skor girebilirsiniz.");
-                selectedRow = -1; // Seçimi sıfırla
+                selectedRow = -1; // Seçimi sıfırla.
                 selectedColumn = -1;
             }
         } else {
-            selectedRow = -1; // Seçimi sıfırla
+            selectedRow = -1; // Geçersiz tıklama durumunda seçimi sıfırla.
             selectedColumn = -1;
         }
 
-
     }//GEN-LAST:event_scoreTable1MouseClicked
 
+    /**
+     * Skor tablosuna bir skoru ekler, eğer ilgili hücre henüz boşsa. Bu metod,
+     * sunucudan gelen skor güncellemelerini yansıtmak için kullanılır.
+     *
+     * @param row Skorun ekleneceği satır indeksi.
+     * @param col Skorun ekleneceği sütun indeksi.
+     * @param score Eklenecek puan değeri.
+     */
     public void addScoreIfNotUsed(int row, int col, int score) {
         Object cellValue = scoreTableModel.getValueAt(row, col);
+        // Eğer hücre boşsa, boş stringse veya "0" ise (henüz skor girilmemişse) VEYA gelen skor zaten hücredeki skorla aynıysa (gereksiz güncelleme önlemek için)
         if (cellValue == null || cellValue.toString().trim().isEmpty() || cellValue.toString().equals("0") || (Integer.toString(score).equals(cellValue.toString()))) {
-            scoreTableModel.setValueAt(score, row, col);
+            scoreTableModel.setValueAt(score, row, col); // Skoru tabloya ekle.
             System.out.println("Skor tablosu güncellendi: [" + row + "," + col + "] -> " + score);
         } else {
             System.out.println("Hücre [" + row + "," + col + "] zaten dolu (" + cellValue + "), sunucudan gelen güncelleme atlandı.");
         }
     }
 
+    /**
+     * "SKOR GÖNDER" butonuna tıklandığında tetiklenen olay. Oyuncunun sırası
+     * değilse, skor seçimi yapılmamışsa veya geçersiz bir kategori seçildiyse
+     * uyarı verir. Zar değerlerini ve seçilen kategori bilgilerini sunucuya
+     * "MOVE" komutuyla gönderir.
+     *
+     * @param evt Olay bilgisi.
+     */
     private void sendButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sendButtonActionPerformed
         if (currentTurnIndex != myPlayerIndex) {
             JOptionPane.showMessageDialog(this, "Sıra sizde değil!");
             return;
         }
 
-        if (selectedRow == -1 || selectedColumn == -1 || selectedRow == 0) {
+        // Geçerli bir skor hücresi seçilip seçilmediğini kontrol et.
+        if (selectedRow == -1 || selectedColumn == -1 || selectedRow == 0) { // 0. satır genellikle kategori başlığıdır.
             JOptionPane.showMessageDialog(this, "Lütfen skorunuzu yazmak istediğiniz bir kategori seçin.");
             return;
         }
 
+        // Sadece kendi sütununa skor gönderebilir.
         if (selectedColumn != myPlayerIndex) {
             JOptionPane.showMessageDialog(this, "Sadece kendi sütununuza skor gönderebilirsiniz.");
-            selectedRow = -1; // Seçimi sıfırla
+            selectedRow = -1; // Seçimi sıfırla.
             selectedColumn = -1;
             return;
         }
 
         Object cellValue = scoreTableModel.getValueAt(selectedRow, selectedColumn);
+        // Seçilen kategorinin daha önce kullanılıp kullanılmadığını kontrol et.
         if (cellValue != null && !cellValue.toString().trim().isEmpty() && !cellValue.toString().equals("0")) {
             JOptionPane.showMessageDialog(this, "Bu kategori zaten kullanıldı. Lütfen başka bir kategori seçin.");
-            selectedRow = -1; // Seçimi sıfırla
+            selectedRow = -1; // Seçimi sıfırla.
             selectedColumn = -1;
             return;
         }
 
-        // Mevcut zar değerlerini al
+        // Mevcut zar değerlerini al.
         int[] diceValues = new int[5];
         for (int i = 0; i < 5; i++) {
-            // Zarların atılmış olduğundan emin ol (zar at butonu kullanılmış olmalı)
+            // Zarların atılmış olduğundan ve Dice nesnelerinin null olmadığından emin ol.
             if (dices[i] != null) {
                 diceValues[i] = dices[i].getValue();
             } else {
                 JOptionPane.showMessageDialog(this, "Zarlar henüz atılmadı veya bir hata oluştu.");
-                return; // Zarlar olmadan skor gönderilemez
+                return; // Zarlar olmadan skor gönderilemez.
             }
         }
 
-        // Seçilen kategori adını al
+        // Seçilen kategori adını al ve küçük harfe çevir.
         String category = categoryTable.getValueAt(selectedRow, 0).toString().toLowerCase();
 
-        // Zar değerlerini string formatına çevir
+        // Zar değerlerini sunucuya gönderilecek string formatına çevir.
         StringBuilder sb = new StringBuilder();
         for (int val : diceValues) {
             sb.append(val).append(" ");
         }
 
-        // Sunucuya "MOVE" komutu ile kategori, zar değerleri, seçilen satır ve sütun bilgilerini gönder
+        // Sunucuya "MOVE" komutu ile kategori, zar değerleri, seçilen satır ve sütun bilgilerini gönder.
         // Sunucu bu bilgileri alıp skoru hesaplayacak, geçerliliğini kontrol edecek ve tabloyu güncelleyecek.
         if (connection != null) {
-            // Yeni format: MOVE:kategori:zar1 zar2 zar3 zar4 zar5:satirIndeksi:sutunIndeksi
+            // Mesaj formatı: MOVE:kategori:zar1 zar2 zar3 zar4 zar5:satirIndeksi:sutunIndeksi
             connection.sendMessage("MOVE:" + category + ":" + sb.toString().trim() + ":" + selectedRow + ":" + selectedColumn);
         }
 
-        // Hamle gönderildikten sonra butonları devre dışı bırak.
-        // Sıra değiştiğinde updateTurn metodu bu butonları yeniden yönetecek.
+        // Hamle gönderildikten sonra zar atma ve skor gönderme butonlarını devre dışı bırak.
+        // Sıra değiştiğinde `updateTurn` metodu bu butonları yeniden yönetecek.
         rollButton.setEnabled(false);
         sendButton.setEnabled(false);
 
-        // Seçili skor hücresini sıfırla
+        // Seçili skor hücresini sıfırla.
         selectedRow = -1;
         selectedColumn = -1;
 
 
     }//GEN-LAST:event_sendButtonActionPerformed
 
+    /**
+     * Birinci zar tutma (toggle) butonuna tıklandığında tetiklenen olay. Zar
+     * tutulmuşsa ilgili zar görselini devre dışı bırakır, aksi takdirde
+     * etkinleştirir.
+     *
+     * @param evt Olay bilgisi.
+     */
+
     private void d1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_d1ActionPerformed
         if (d1.isSelected()) {
-            dice1.setEnabled(false);
+            dice1.setEnabled(false); // Zar tutulduysa görseli devre dışı bırak.
         } else {
-            dice1.setEnabled(true);
+            dice1.setEnabled(true); // Zar serbest bırakıldıysa görseli etkinleştir.
         }
     }//GEN-LAST:event_d1ActionPerformed
 
+    /**
+     * İkinci zar tutma (toggle) butonuna tıklandığında tetiklenen olay. Zar
+     * tutulmuşsa ilgili zar görselini devre dışı bırakır, aksi takdirde
+     * etkinleştirir.
+     *
+     * @param evt Olay bilgisi.
+     */
     private void d2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_d2ActionPerformed
         if (d2.isSelected()) {
             dice2.setEnabled(false);
@@ -693,7 +815,13 @@ public class GameGUI extends javax.swing.JFrame {
             dice2.setEnabled(true);
         }
     }//GEN-LAST:event_d2ActionPerformed
-
+    /**
+     * Üçüncü zar tutma (toggle) butonuna tıklandığında tetiklenen olay. Zar
+     * tutulmuşsa ilgili zar görselini devre dışı bırakır, aksi takdirde
+     * etkinleştirir.
+     *
+     * @param evt Olay bilgisi.
+     */
     private void d3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_d3ActionPerformed
         if (d3.isSelected()) {
             dice3.setEnabled(false);
@@ -701,7 +829,13 @@ public class GameGUI extends javax.swing.JFrame {
             dice3.setEnabled(true);
         }
     }//GEN-LAST:event_d3ActionPerformed
-
+    /**
+     * Dördüncü zar tutma (toggle) butonuna tıklandığında tetiklenen olay. Zar
+     * tutulmuşsa ilgili zar görselini devre dışı bırakır, aksi takdirde
+     * etkinleştirir.
+     *
+     * @param evt Olay bilgisi.
+     */
     private void d4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_d4ActionPerformed
         if (d4.isSelected()) {
             dice4.setEnabled(false);
@@ -709,7 +843,13 @@ public class GameGUI extends javax.swing.JFrame {
             dice4.setEnabled(true);
         }
     }//GEN-LAST:event_d4ActionPerformed
-
+    /**
+     * Beşinci zar tutma (toggle) butonuna tıklandığında tetiklenen olay. Zar
+     * tutulmuşsa ilgili zar görselini devre dışı bırakır, aksi takdirde
+     * etkinleştirir.
+     *
+     * @param evt Olay bilgisi.
+     */
     private void d5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_d5ActionPerformed
         if (d5.isSelected()) {
             dice5.setEnabled(false);
